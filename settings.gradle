@@ -1,2 +1,3 @@
 rootProject.name = 'MemoryStones-Sponge'
-
+include 'SpongeAPI'
+project(':SpongeAPI').projectDir = file('lib/SpongeAPI')
