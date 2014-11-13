@@ -1,8 +1,11 @@
 package au.id.rleach.efficientmultiblocks;
 
 import org.spongepowered.api.util.Axis;
+import org.spongepowered.api.util.Direction;
 
 import java.util.EnumMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class RuleRotate {
     private final EnumMap<Axis,Boolean> map = new EnumMap<Axis,Boolean>(Axis.class);

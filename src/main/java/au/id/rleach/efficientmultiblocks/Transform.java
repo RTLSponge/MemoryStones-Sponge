@@ -1,5 +1,6 @@
 package au.id.rleach.efficientmultiblocks;
 
+import au.id.rleach.efficientmultiblocks.interfaces.EgoCoordinate;
 import au.id.rleach.efficientmultiblocks.interfaces.IBlockPattern;
 import org.spongepowered.api.util.Axis;
 import org.spongepowered.api.util.Direction;
@@ -9,14 +10,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * Created by Ryan on 14/11/2014.
- */
 public class Transform {
     final Reflexion reflexion;
     final Orientation orientation;
 
-    Transform(Reflexion reflexion, Orientation orientation){
+    Transform(Reflexion reflexion, Orientation orientation, EgoCoordinate offset){
         this.reflexion = reflexion;
         this.orientation = orientation;
     }
@@ -28,7 +26,9 @@ public class Transform {
         //TODO: Make this obey the Rules.
         for(Orientation o : getOrientationsFromDefault(pattern.getOrientation())){
             for(Reflexion r : Reflexion.all(pattern.getReflexion())) {
-                out.add(new Transform(r,o));
+                for(EgoCoordinate offset : pattern.getTranslations()) {
+                    out.add(new Transform(r, o, offset));
+                }
             }
         }
         return out;

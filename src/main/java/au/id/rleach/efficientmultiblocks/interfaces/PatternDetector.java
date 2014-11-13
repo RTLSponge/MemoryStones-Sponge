@@ -1,8 +1,8 @@
 package au.id.rleach.efficientmultiblocks.interfaces;
 
+import com.google.common.base.Optional;
 import org.spongepowered.api.block.Block;
 
-import java.util.Optional;
 
 public interface PatternDetector {
     /**

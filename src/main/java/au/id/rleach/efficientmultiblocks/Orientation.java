@@ -16,8 +16,11 @@ public class Orientation {
 
     //By default face up.
     public Orientation(Direction forwards) {
-        this.forwards = forwards;
-        this.up = Direction.UP;
+        this(Direction.UP, forwards);
+    }
+
+    public Orientation(){
+        this(Direction.NORTH);
     }
 
     public static Set<Direction> up(){
@@ -44,19 +47,5 @@ public class Orientation {
         out.add(Direction.UP);
         out.add(Direction.DOWN);
         return out;
-    }
-
-    public Set<Orientation> getOrientationsForRule(RuleRotate r){
-
-        Set<Orientation> all = new TreeSet<Orientation>();
-        for(Direction u:up()){
-            for(Direction f:forwards()){
-                if(u.equals(f) || u.isOpposite(f)){
-                    continue;
-                }
-                all.add(new Orientation(u,f));
-            }
-        }
-        return all;
     }
 }

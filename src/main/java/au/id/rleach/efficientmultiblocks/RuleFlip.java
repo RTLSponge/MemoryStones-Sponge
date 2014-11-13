@@ -2,6 +2,7 @@ package au.id.rleach.efficientmultiblocks;
 
 import org.spongepowered.api.util.Axis;
 
+import java.util.Collection;
 import java.util.EnumMap;
 
 public class RuleFlip {
