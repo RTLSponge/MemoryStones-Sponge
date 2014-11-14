@@ -10,5 +10,5 @@ public interface PatternDetector {
      * @param block The last block placed.
      * @return the first matching IMBObject the detector finds.
      */
-    public Optional<IMBObject> match(Block block);
+    public Optional<AbstractMBObject> match(Block block);
 }
