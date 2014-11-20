@@ -4,6 +4,7 @@ import org.spongepowered.api.util.Axis;
 
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Reflexion {
@@ -17,6 +18,7 @@ public class Reflexion {
 
     public Reflexion(Axis...axises){
         this();
+
         for(Axis x : axises){
             map.put(x,true);
         }
