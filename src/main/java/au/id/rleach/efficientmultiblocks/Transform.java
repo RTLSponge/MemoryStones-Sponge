@@ -15,10 +15,14 @@ public class Transform {
     final Orientation orientation;
     final IEgoCoordinate offset;
 
+    /**
+     * assumes the origin is 0,0,0 egocentric.
+     * **/
     Transform(Reflexion reflexion, Orientation orientation, IEgoCoordinate offset){
         this.reflexion = reflexion;
         this.orientation = orientation;
         this.offset = offset;
+
     }
 
     public static Collection<Transform> getAll(AbstractBlockPattern pattern) {
