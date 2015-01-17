@@ -1,17 +1,16 @@
 package au.id.rleach.efficientmultiblocks;
 
-import au.id.rleach.efficientmultiblocks.interfaces.AbstractBlockMatcher;
+import au.id.rleach.efficientmultiblocks.interfaces.IBlockMatcher;
 import au.id.rleach.efficientmultiblocks.interfaces.AbstractBlockPattern;
 import au.id.rleach.efficientmultiblocks.interfaces.AbstractMBObject;
 import au.id.rleach.efficientmultiblocks.interfaces.IEgoCoordinate;
 import com.google.common.base.*;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.*;
-import org.spongepowered.api.block.Block;
+import com.sun.istack.internal.NotNull;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.math.Vector3d;
-import org.spongepowered.api.math.Vector3i;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -22,38 +21,46 @@ import java.util.Map;
 public class BlockPattern extends AbstractBlockPattern{
 
     //used for matching the blocks.
-    private ImmutableMap<IEgoCoordinate,AbstractBlockMatcher> pattern;
-    private ImmutableMultimap<AbstractBlockMatcher,IEgoCoordinate> patternLookup;
+    private final ImmutableMap<IEgoCoordinate,IBlockMatcher> pattern;
+    private final ImmutableMultimap<IBlockMatcher,IEgoCoordinate> patternLookup;
 
     //used for drawing a given BlockPattern for debugging purposes.
-    private ImmutableMap<IEgoCoordinate,BlockState> blocks;
+    private ImmutableMap<IEgoCoordinate, BlockState> blocks;
 
-    private RuleFlip flip;
-    private RuleRotate rotate;
-    private Orientation initialOrientation;
-    private Reflexion reflexion;
-
-    BlockPattern(Map<IEgoCoordinate,AbstractBlockMatcher> pattern, RuleFlip flip, RuleRotate rotate, Orientation orientation) {
-        Preconditions.checkNotNull(pattern);
-        Preconditions.checkNotNull(flip);
-        Preconditions.checkNotNull(rotate);
-        Preconditions.checkNotNull(orientation);
-
-        this.blocks = ImmutableMap.of();
-        ImmutableMap.Builder<IEgoCoordinate, AbstractBlockMatcher> builder = ImmutableMap.builder();
-        for(Map.Entry<IEgoCoordinate,AbstractBlockMatcher> e: pattern.entrySet()){
-            builder.put(e.getKey(),e.getValue());
+    static final Function<IBlockMatcher, BlockState> TO_BLOCKSTATE = new Function<IBlockMatcher, BlockState>() {
+        @Nullable
+        @Override
+        public BlockState apply(final IBlockMatcher input) {
+            return input.getDebugBlockState();
         }
-        this.pattern = builder.build();
+    };
+
+    private final RuleFlip flip;
+    private final RuleRotate rotate;
+    private final Orientation initialOrientation;
+    private final Reflexion reflexion;
+
+    BlockPattern(final Map<IEgoCoordinate, IBlockMatcher> patternIn, final RuleFlip flipIn, final RuleRotate rotateIn, final Orientation orientationIn) {
+        super();
+        Preconditions.checkNotNull(patternIn);
+        Preconditions.checkNotNull(flipIn);
+        Preconditions.checkNotNull(rotateIn);
+        Preconditions.checkNotNull(orientationIn);
+
+        this.pattern = ImmutableMap.copyOf(patternIn);
+        final Map<IEgoCoordinate, BlockState> transformed = Maps.transformValues(pattern, TO_BLOCKSTATE);
+        //Make Immutable, too bad we can't have a immutable copy of an immutable map.
+        this.blocks = ImmutableMap.copyOf(transformed);
+        //Have a reverse lookup map for performance reasons, has to be a multimap due to possible duplicate values.
         this.patternLookup = this.pattern.asMultimap().inverse();
-        this.flip = flip;
-        this.rotate = rotate;
-        this.initialOrientation = orientation;
+        this.flip = flipIn;
+        this.rotate = rotateIn;
+        this.initialOrientation = orientationIn;
         this.reflexion = new Reflexion();
     }
 
     //Package Local, lets use a factory to make these.
-    BlockPattern(Map<IEgoCoordinate,AbstractBlockMatcher> pattern, Map<IEgoCoordinate,BlockState> blocks, RuleFlip flip, RuleRotate rotate, Orientation orientation) {
+    BlockPattern(Map<IEgoCoordinate,IBlockMatcher> pattern, Map<IEgoCoordinate,BlockState> blocks, RuleFlip flip, RuleRotate rotate, Orientation orientation) {
         this(pattern, flip, rotate, orientation);
         this.blocks = ImmutableMap.copyOf(blocks);
     }
@@ -67,14 +74,14 @@ public class BlockPattern extends AbstractBlockPattern{
         return patternLookup.values();
     }
 
-    public Collection<IEgoCoordinate> getPositions(AbstractBlockMatcher key) {
+    public Collection<IEgoCoordinate> getPositions(IBlockMatcher key) {
         return patternLookup.get(key);
     }
 
     @Override
     public Collection<IEgoCoordinate> getPositions(BlockState bs) {
         ImmutableSet.Builder<IEgoCoordinate> out = ImmutableSet.builder();
-        for (Map.Entry<AbstractBlockMatcher, IEgoCoordinate> e : patternLookup.entries()) {
+        for (Map.Entry<IBlockMatcher, IEgoCoordinate> e : patternLookup.entries()) {
             if(e.getKey().apply(bs)){
                 out.add(e.getValue());
             }
@@ -91,7 +98,7 @@ public class BlockPattern extends AbstractBlockPattern{
     @Override
     public boolean conflictsWithPattern(BlockState bs, IEgoCoordinate pos){
         //Note, this for loop should only ever run once, as the multimap should be only 1 way.
-        AbstractBlockMatcher m = pattern.get(pos);
+        IBlockMatcher m = pattern.get(pos);
         //If pos isn't in pattern then it doesn't conflict.
         if(m == null) {
             return false;
@@ -102,9 +109,9 @@ public class BlockPattern extends AbstractBlockPattern{
     @Override
     public Optional<AbstractMBObject> isAtLocation(Block placed, Transform t, LoadingCache<Vector3d, Block> cache) {
 
-        for( Map.Entry<IEgoCoordinate, AbstractBlockMatcher> e: pattern.entrySet()){
+        for( Map.Entry<IEgoCoordinate, IBlockMatcher> e: pattern.entrySet()){
             IEgoCoordinate ego = e.getKey();
-            AbstractBlockMatcher match = e.getValue();
+            IBlockMatcher match = e.getValue();
             Vector3d worldCoord = t.transform(placed, ego);
             if(!match.apply(cache.getUnchecked(worldCoord).getBlockState())) {
                 return Optional.absent();

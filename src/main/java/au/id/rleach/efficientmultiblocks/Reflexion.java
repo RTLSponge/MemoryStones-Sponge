@@ -2,55 +2,62 @@ package au.id.rleach.efficientmultiblocks;
 
 import org.spongepowered.api.util.Axis;
 
-import java.util.EnumMap;
+import javax.annotation.Nullable;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class Reflexion {
-    private final EnumMap<Axis, Boolean> map = new EnumMap<Axis,Boolean>(Axis.class);
 
-    public Reflexion() {
-        for(Axis x:Axis.values()){
-            map.put(x, false);
-        }
+    //null represents the non reflection.
+    @Nullable
+    private final Axis axis;
+
+    private Reflexion() {
+        super();
+        this.axis = null;
     }
 
-    public Reflexion(Axis...axises){
-        this();
-
-        for(Axis x : axises){
-            map.put(x,true);
-        }
-    }
-
-    public Reflexion(Reflexion r, boolean x, boolean y, boolean z){
-        //^ is xor
-        map.put(Axis.X, x ^ r.map.get(Axis.X));
-        map.put(Axis.Y, y ^ r.map.get(Axis.Y));
-        map.put(Axis.Z, z ^ r.map.get(Axis.Z));
+    private Reflexion(final Axis axisIn) {
+        super();
+        this.axis = axisIn;
     }
 
     int getFlip(Axis x){
-        return map.get(x) ? -1 : 1;
+        return x == axis ? -1 : 1;
     }
-
 
     static Set<Reflexion> all(){
         return all(new Reflexion());
     }
 
-    static Set<Reflexion> all(Reflexion r){
-        Set<Reflexion> out = new LinkedHashSet<Reflexion>();
+    static Set<Reflexion> all(final Reflexion r){
+        final Set<Reflexion> out = new LinkedHashSet<Reflexion>();
         //Loop over all values for each axis.
-        boolean[] tf = {true, false};
-        for(boolean x : tf){
-            for(boolean y : tf){
-                for(boolean z : tf){
-                    out.add(new Reflexion(r, x, y, z));
-                }
-            }
+        //make r first.
+        out.add(r);
+        out.add(new Reflexion());
+        //as out is a set, r can not be added twice.
+        for(Axis x : Axis.values()){
+            out.add(new Reflexion(x));
         }
+        assert(out.size() == 4);
         return out;
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Reflexion reflexion = (Reflexion) obj;
+
+        if (axis != reflexion.axis) return false;
+
+        return true;
+    }
+
+    @Override
+    public final int hashCode() {
+        return axis != null ? axis.hashCode() : 0;
     }
 }

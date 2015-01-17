@@ -6,10 +6,8 @@ import au.id.rleach.efficientmultiblocks.interfaces.PatternDetector;
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
-import org.spongepowered.api.block.Block;
-import org.spongepowered.api.math.Vector3d;
 import org.spongepowered.api.world.extent.Extent;
-
+import org.spongepowered.api.block.BlockState;
 import java.util.Collection;
 
 /**

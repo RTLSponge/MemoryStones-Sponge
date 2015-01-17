@@ -2,8 +2,6 @@ package au.id.rleach.efficientmultiblocks;
 
 import au.id.rleach.efficientmultiblocks.interfaces.AbstractBlockPattern;
 import au.id.rleach.efficientmultiblocks.interfaces.IEgoCoordinate;
-import org.spongepowered.api.block.Block;
-import org.spongepowered.api.math.Vector3d;
 import org.spongepowered.api.util.Direction;
 
 import java.util.Collection;

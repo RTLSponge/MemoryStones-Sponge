@@ -1,5 +1,6 @@
 package au.id.rleach.efficientmultiblocks;
 
+import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Preconditions;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -10,7 +11,9 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Optional;
 
 /**
  * A BlockPattern with a world, co-ordinate and orientation.
@@ -72,5 +75,17 @@ public class MBObject {
     //takes an offset and outputs a real world co-ordinate.
     private Vector3i translateEgoCoordinate(Vector3i offset){
 
+    }
+
+    public final Vector3i getLowerBounds() {
+        return this.locations.stream().reduce((v,vv) -> v.min(vv)).get();
+    }
+
+    public final Vector3i getUpperBounds() {
+        return this.locations.stream().reduce((v, vv) -> v.max(vv)).get();
+    }
+
+    public World getWorld() {
+        return world;
     }
 }
